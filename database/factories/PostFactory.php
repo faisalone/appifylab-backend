@@ -20,9 +20,9 @@ class PostFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'body' => $this->faker->paragraph($this->faker->numberBetween(1, 3)),
+            'body' => \fake()->paragraph(\fake()->numberBetween(1, 3)),
             'image_path' => null,
-            'visibility' => $this->faker->boolean(75) ? 'public' : 'private',
+            'visibility' => \fake()->boolean(75) ? 'public' : 'private',
         ];
     }
 }

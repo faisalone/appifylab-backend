@@ -24,13 +24,13 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $firstName = $this->faker->firstName();
-        $lastName = $this->faker->lastName();
+        $firstName = \fake()->firstName();
+        $lastName = \fake()->lastName();
 
         return [
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => \fake()->unique()->safeEmail(),
             'profile_image_url' => User::defaultProfileImageUrl($firstName, $lastName),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
