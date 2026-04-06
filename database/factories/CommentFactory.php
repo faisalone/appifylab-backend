@@ -23,7 +23,7 @@ class CommentFactory extends Factory
             'post_id' => Post::factory(),
             'user_id' => User::factory(),
             'parent_id' => null,
-            'body' => fake()->sentence(fake()->numberBetween(4, 12)),
+            'body' => $this->faker->sentence($this->faker->numberBetween(4, 12)),
         ];
     }
 }
