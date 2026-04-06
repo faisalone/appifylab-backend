@@ -1,15 +1,23 @@
 # Appifylab Backend
 
-Laravel 13 + PostgreSQL REST API with JWT authentication (access token + rotating refresh token).
+Laravel 13 REST API for the Appifylab feed application.
 
 ## Stack
 
 - PHP 8.4+
 - Laravel 13
-- PostgreSQL
+- PostgreSQL in production
 - `php-open-source-saver/jwt-auth` 2.9
 
-## Features Implemented
+## What This Backend Does
+
+- Issues JWT access tokens for the frontend.
+- Supports refresh token rotation.
+- Exposes post, comment, reply, like, and follow APIs.
+- Returns feed data for the React frontend.
+- Supports lazy comment loading so the feed does not ship full nested comment trees up front.
+
+## Implemented Features
 
 - Authentication
 	- Register
@@ -17,15 +25,69 @@ Laravel 13 + PostgreSQL REST API with JWT authentication (access token + rotatin
 	- Current user (`me`)
 	- Refresh token rotation
 	- Logout
-- Feed
-	- Public/private posts
+- Feed and social actions
+	- Public and private posts
+	- Create, update, and delete posts
+	- Post image upload and removal
+	- Like / unlike posts
 	- Comment on posts
 	- Reply to top-level comments
-	- Like/unlike posts
-	- Like/unlike comments and replies
-	- Visibility enforcement for private posts
+	- Like / unlike comments and replies
+	- Follow / unfollow users
+	- List followed users
+- Performance and API shape
+	- Feed posts return `comments_count` instead of loading the full comment tree
+	- Comments are fetched on demand from a dedicated endpoint
+	- New comment and reply responses are returned immediately so the frontend can update without a full refetch
 
-## Setup
+## API Routes
+
+All routes are prefixed with `/api`.
+
+- Auth
+	- `POST /auth/register`
+	- `POST /auth/login`
+	- `POST /auth/refresh`
+	- `GET /auth/me` (auth required)
+	- `POST /auth/logout` (auth required)
+- Posts
+	- `GET /posts` (auth required)
+	- `POST /posts` (auth required)
+	- `PUT /posts/{post}` (auth required)
+	- `DELETE /posts/{post}` (auth required)
+	- `POST /posts/{post}/like` (auth required)
+	- `DELETE /posts/{post}/like` (auth required)
+	- `GET /posts/{post}/likes` (auth required)
+- Comments
+	- `GET /posts/{post}/comments` (auth required, lazy-loaded)
+	- `POST /posts/{post}/comments` (auth required)
+	- `POST /comments/{comment}/replies` (auth required)
+	- `POST /comments/{comment}/like` (auth required)
+	- `DELETE /comments/{comment}/like` (auth required)
+	- `GET /comments/{comment}/likes` (auth required)
+- Follows
+	- `GET /users/following` (auth required)
+	- `POST /users/{user}/follow` (auth required)
+	- `DELETE /users/{user}/follow` (auth required)
+
+## Database and Production Setup
+
+The production server uses PostgreSQL and an isolated database for this app.
+
+Production values used on the server:
+
+```env
+APP_URL=https://api-appifylab.faisal.one
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=appifylab
+DB_USERNAME=appifylab
+FRONTEND_URL=https://appifylab.faisal.one
+CORS_ALLOWED_ORIGINS=https://appifylab.faisal.one
+```
+
+## Local Setup
 
 1. Install dependencies
 
@@ -68,42 +130,41 @@ php artisan migrate
 php artisan storage:link
 ```
 
-6. Start server
+6. Start the local server
 
 ```bash
 php artisan serve
 ```
 
-Backend base URL: `http://localhost:8000`
+Backend base URL locally:
 
-## API Routes
+```text
+http://localhost:8000
+```
 
-All routes are prefixed with `/api`.
+## Production Deployment
 
-- Auth
-	- `POST /auth/register`
-	- `POST /auth/login`
-	- `POST /auth/refresh`
-	- `GET /auth/me` (auth required)
-	- `POST /auth/logout` (auth required)
-- Posts
-	- `GET /posts` (auth required)
-	- `POST /posts` (auth required)
-	- `POST /posts/{post}/like` (auth required)
-	- `DELETE /posts/{post}/like` (auth required)
-	- `GET /posts/{post}/likes` (auth required)
-- Comments
-	- `POST /posts/{post}/comments` (auth required)
-	- `POST /comments/{comment}/replies` (auth required)
-	- `POST /comments/{comment}/like` (auth required)
-	- `DELETE /comments/{comment}/like` (auth required)
-	- `GET /comments/{comment}/likes` (auth required)
+- Live backend domain: `https://api-appifylab.faisal.one`
+- Deployed from its own GitHub repository.
+- Runs from `/var/www/appifylab-backend` on the server.
+- Uses Nginx + PHP-FPM.
+- Frontend origin is allowed through CORS so the React app can authenticate and call the API.
+
+## Seed Data
+
+- The seeders create a demo user and sample feed content so the frontend has data immediately after deployment.
+- Factory data was made deterministic for server seeding reliability.
+- Seeding is safe to run with:
+
+```bash
+php artisan db:seed --force
+```
 
 ## Auth Notes
 
-- Access token is returned in auth responses and should be sent as `Bearer` token.
+- Access token is returned in auth responses and should be sent as a `Bearer` token.
 - Refresh token is stored as an HTTP-only cookie by default.
-- `POST /auth/refresh` rotates refresh token and issues a new access token.
+- `POST /auth/refresh` rotates the refresh token and issues a new access token.
 
 ## Testing
 
