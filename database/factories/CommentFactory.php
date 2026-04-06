@@ -6,13 +6,14 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as FakerFactory;
 
 /**
  * @extends Factory<Comment>
  */
 class CommentFactory extends Factory
 {
+    protected static int $index = 0;
+
     /**
      * Define the model's default state.
      *
@@ -20,13 +21,13 @@ class CommentFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = FakerFactory::create();
+        $index = self::$index++;
 
         return [
             'post_id' => Post::factory(),
             'user_id' => User::factory(),
             'parent_id' => null,
-            'body' => $faker->sentence($faker->numberBetween(4, 12)),
+            'body' => 'Sample comment ' . ($index + 1),
         ];
     }
 }

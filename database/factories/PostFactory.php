@@ -5,13 +5,14 @@ namespace Database\Factories;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as FakerFactory;
 
 /**
  * @extends Factory<Post>
  */
 class PostFactory extends Factory
 {
+    protected static int $index = 0;
+
     /**
      * Define the model's default state.
      *
@@ -19,13 +20,13 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $faker = FakerFactory::create();
+        $index = self::$index++;
 
         return [
             'user_id' => User::factory(),
-            'body' => $faker->paragraph($faker->numberBetween(1, 3)),
+            'body' => 'Sample post content ' . ($index + 1),
             'image_path' => null,
-            'visibility' => $faker->boolean(75) ? 'public' : 'private',
+            'visibility' => $index % 4 === 0 ? 'private' : 'public',
         ];
     }
 }
