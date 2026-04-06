@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Faker\Factory as FakerFactory;
 
 /**
  * @extends Factory<Post>
@@ -18,11 +19,13 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $faker = FakerFactory::create();
+
         return [
             'user_id' => User::factory(),
-            'body' => \fake()->paragraph(\fake()->numberBetween(1, 3)),
+            'body' => $faker->paragraph($faker->numberBetween(1, 3)),
             'image_path' => null,
-            'visibility' => \fake()->boolean(75) ? 'public' : 'private',
+            'visibility' => $faker->boolean(75) ? 'public' : 'private',
         ];
     }
 }

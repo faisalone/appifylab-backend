@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Faker\Factory as FakerFactory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -24,13 +25,14 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        $firstName = \fake()->firstName();
-        $lastName = \fake()->lastName();
+        $faker = FakerFactory::create();
+        $firstName = $faker->firstName();
+        $lastName = $faker->lastName();
 
         return [
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'email' => \fake()->unique()->safeEmail(),
+            'email' => $faker->unique()->safeEmail(),
             'profile_image_url' => User::defaultProfileImageUrl($firstName, $lastName),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
