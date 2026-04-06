@@ -3,8 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,19 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // API-only app: never redirect guests to a login route.
-        $middleware->redirectGuestsTo(static function (Request $request): ?string {
-            return null;
-        });
+        //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (AuthenticationException $exception, Request $request) {
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Unauthenticated.',
-                ], 401);
-            }
-
-            return null;
-        });
+        //
     })->create();
